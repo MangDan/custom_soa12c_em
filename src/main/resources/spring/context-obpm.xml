@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	 					http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<bean id="soaClient" class="oracle.bpm.workspace.client.config.SOAServiceClient">
+        <property name="domainIdentity" value="jazn.com"/>
+        <property name="serverURL" value="t3://localhost:7003"/>
+        <property name="wsURL" value="http://localhost:7003"/>
+        <property name="userName" value="weblogic"/>
+        <property name="password" value="welcome1"/>
+        <property name="initialContextFactory" value="weblogic.jndi.WLInitialContextFactory"/>
+        <property name="participateInClientTransaction" value="false"/>
+    </bean>
+	
+</beans>

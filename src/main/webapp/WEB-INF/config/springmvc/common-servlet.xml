@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	- DispatcherServlet application context for Application's web tier.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:util="http://www.springframework.org/schema/util"
+		xmlns:mvc="http://www.springframework.org/schema/mvc"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+				http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+				http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+	
+	<!--
+		- The controllers are autodetected POJOs labeled with the @Controller annotation.
+	-->
+	<context:component-scan base-package="oracle.bpm.workspace">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
+	
+	<!--
+		- The form-based controllers within this application provide @RequestMapping 
+		- annotations at the type level for path mapping URLs and @RequestMapping 
+		- at the method level for request type mappings (e.g., GET and POST). 
+		- In contrast, ClinicController - which is not form-based - provides 
+		- @RequestMapping only at the method level for path mapping URLs.
+		-
+		- DefaultAnnotationHandlerMapping is driven by these annotations and is 
+		- enabled by default with Java 5+.
+	-->
+
+	<!--
+		- This bean processes annotated handler methods, applying Application-specific PropertyEditors
+		- for request parameter binding. It overrides the default AnnotationMethodHandlerAdapter.
+	-->
+	<!-- bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="webBindingInitializer">
+			<bean class="egovframework.com.cmm.web.EgovBindingInitializer"/>
+		</property>
+		<property name="customArgumentResolvers">
+			<list>
+				<bean class="egovframework.rte.ptl.mvc.bind.CommandMapArgumentResolver"/>
+			</list>
+		</property>
+	</bean-->
+
+	<!--
+		- This bean resolves specific types of exceptions to corresponding logical 
+		- view names for error views. The default behaviour of DispatcherServlet 
+		- is to propagate all exceptions to the servlet container: this will happen 
+		- here with all other types of exceptions.
+	-->
+	<!-- bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView" value="cmm/egovError"/>
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.springframework.dao.DataAccessException">cmm/dataAccessFailure</prop>
+				<prop key="org.springframework.transaction.TransactionException">cmm/dataAccessFailure</prop>
+				<prop key="egovframework.rte.fdl.cmmn.exception.EgovBizException">cmm/egovBizException</prop>
+				<prop key="org.springframework.web.HttpSessionRequiredException">cmm/uat/uia/EgovLoginUsr</prop>
+			</props>
+		</property>
+	</bean-->
+	
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<!-- bean class="oracle.bpm.workspace.client.util.MappingJsonpHttpMessageConverter" p:supportedMediaTypes="application/javascript" p:prefixCallback="callback(" p:suffixCallback=");" /-->
+			<bean class="oracle.bpm.workspace.client.util.GsonHttpMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory  
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+	-->
+	
+	<mvc:default-servlet-handler/>
+	
+	<!--
+		- This bean configures the 'prefix' and 'suffix' properties of 
+		- InternalResourceViewResolver, which resolves logical view names 
+		- returned by Controllers. For example, a logical view name of "vets" 
+		- will be mapped to "/WEB-INF/jsp/vets.jsp".
+	-->
+	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" p:order="1" 
+	p:viewClass="org.springframework.web.servlet.view.JstlView" 
+	p:prefix="/WEB-INF/jsp/" p:suffix=".jsp"/>
+	
+	<!-- Tiles 사용 설정 (JSP만 사용할 경우 주석 처리 - 아래 tilesConfigurer와 같이 주석) -->
+	<bean id="tilesViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
+		<property name="order" value="0" />
+	</bean>
+	
+	<!-- TODO tiles definition 추가 -->
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/config/tiles2def/tiles-def.xml</value>
+				<value>/WEB-INF/config/tiles2def/common-def.xml</value>
+				<value>/WEB-INF/config/tiles2def/soa/soa-main-def.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" p:order="0" />
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+	<!-- 
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" p:messageConverters-ref="messageConverters" />
+	
+	<util:list id="messageConverters">
+		<bean class="com.kbstar.kportal.wcp.rest.util.MappingJsonpHttpMessageConverter" p:supportedMediaTypes="application/javascript" p:prefixCallback="callback(" p:suffixCallback=");" />
+		<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" p:supportedMediaTypes="application/json" />
+	</util:list>
+	-->
+	<!--
+		- Message source for this context, loaded from localized "messages_xx" files.
+		- Could also reside in the root application context, as it is generic,
+		- but is currently just used within Application's web tier.
+	-->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource"
+			p:basename="messages"/>
+	
+</beans>

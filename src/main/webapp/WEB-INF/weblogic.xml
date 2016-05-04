@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<weblogic-web-app xmlns="http://xmlns.oracle.com/weblogic/weblogic-web-app" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd http://xmlns.oracle.com/weblogic/weblogic-web-app http://xmlns.oracle.com/weblogic/weblogic-web-app/1.3/weblogic-web-app.xsd">
+	<weblogic-version>12.1.3</weblogic-version>
+	<jsp-descriptor>
+		<page-check-seconds>1</page-check-seconds>
+	</jsp-descriptor>
+	<library-ref>
+		<library-name>oracle.soa.workflow</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.soa.bpel</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.rules</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.bpm.runtime</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.bpm.client</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.bpm.projectlib</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.bpm.workspace</library-name>
+	</library-ref>
+	<library-ref>
+		<library-name>oracle.bpm.webapp.common</library-name>
+	</library-ref>
+	<container-descriptor>
+		<prefer-application-packages>
+			<package-name>org.springframework.*</package-name>
+			<package-name>org.slf4j.*</package-name>
+		</prefer-application-packages>
+		<show-archived-real-path-enabled>true</show-archived-real-path-enabled>
+	</container-descriptor>
+	<context-root>soa_em_recovery_12c_2</context-root>
+</weblogic-web-app>

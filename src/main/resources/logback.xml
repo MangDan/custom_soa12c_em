@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<property name="CONSOLE_LOG_PATTERN1" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+	<property name="CONSOLE_LOG_PATTERN2" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t{14}]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wex"/>
+	<property name="CONSOLE_LOG_PATTERN3" value="%d{ABSOLUTE} %5p %t %c{2}:%L - %m%n"/>
+	
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN1}</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="oracle.bpm.workspace" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+	
+	<!-- 
+	<logger name="oracle.soabpm.workspace.dao.CustomBPMTrackerDAO" additivity="false">
+        <level value="ERROR"/>
+        <appender-ref ref="console"/>
+    </logger>
+    -->
+	<!-- log SQL with timing information, post execution -->
+	<logger name="jdbc.sqltiming" additivity="false">
+		<level value="ERROR" />
+		<appender-ref ref="console" />
+	</logger>
+	
+	<logger name="org.springframework" additivity="false">
+		<level value="ERROR" />
+		<appender-ref ref="console" />
+	</logger>
+	
+	<logger name="java.sql" additivity="false">
+		<level value="ERROR" />
+		<appender-ref ref="console" />
+	</logger>
+	
+	<root level="ERROR">
+		<appender-ref ref="console" />
+	</root>
+</configuration>

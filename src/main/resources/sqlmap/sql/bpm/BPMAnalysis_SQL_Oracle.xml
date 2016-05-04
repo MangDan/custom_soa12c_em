@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="oracle.bpm.workspace.client.dao.CustomBPMAnalysisDAO">
+	<resultMap type="processActivityAnalysisModel" id="processActivityAnalysisModel">
+		<result property="componentname" column="COMPONENTNAME" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="label" column="LABEL" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="activityid" column="ACTIVITYID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="activitycnt" column="ACTIVITY_CNT" javaType="java.lang.Integer" jdbcType="NUMERIC"/>
+		<result property="activityavglt" column="AVG_LEADTIME" javaType="java.lang.Integer" jdbcType="NUMERIC"/>
+	</resultMap>
+	
+	<select id="getProcessActivityAnalysis" parameterType="string" resultMap="processActivityAnalysisModel">
+			SELECT COMPONENTNAME, LABEL, ACTIVITYNAME, ACTIVITY_CNT, AVG_LEADTIME FROM (
+				SELECT AIT.COMPONENTNAME
+				      ,ACT.LABEL
+				      ,ACT.ACTIVITYNAME
+				      ,COUNT(AIT.COMPONENTNAME) ACTIVITY_CNT
+				      ,NVL(AVG(ROUND(EXTRACT(DAY    FROM DECODE(AIT.PROCESSED, 'Y', AIT.LASTUPDATED, CURRENT_TIMESTAMP) - AIT.CREATETIME) *24*60*60
+				     + EXTRACT(HOUR   FROM DECODE(AIT.PROCESSED, 'Y', AIT.LASTUPDATED, CURRENT_TIMESTAMP) - AIT.CREATETIME) *60*60
+				     + EXTRACT(MINUTE FROM DECODE(AIT.PROCESSED, 'Y', AIT.LASTUPDATED, CURRENT_TIMESTAMP) - AIT.CREATETIME) *60
+				     + EXTRACT(SECOND FROM DECODE(AIT.PROCESSED, 'Y', AIT.LASTUPDATED, CURRENT_TIMESTAMP) - AIT.CREATETIME),0)),0) AS AVG_LEADTIME
+				FROM BGF_SOAINFRA.BPM_CUBE_AUDITINSTANCE AIT, 
+				     (SELECT DISTINCT ACTIVITYNAME
+				                    , LABEL
+				                    , ACTIVITYTYPE 
+				      FROM BGF_SOAINFRA.BPM_CUBE_ACTIVITY WHERE PROCESSID = (SELECT MAX(PROCESSID) FROM BGF_SOAINFRA.BPM_CUBE_PROCESS WHERE PROCESSNAME = #{componentname})) ACT
+				WHERE AIT.ACTIVITYID(+) = ACT.ACTIVITYNAME
+				AND AIT.COMPONENTNAME(+)=#{componentname}
+				AND AIT.FLOWELEMENTTYPE(+) = 'ACTIVITY'
+				AND (ACT.ACTIVITYTYPE = 'USER_TASK' OR ACT.ACTIVITYTYPE = 'RECEIVE_TASK')
+				GROUP BY AIT.COMPONENTNAME, ACT.LABEL, ACT.ACTIVITYNAME)
+			ORDER BY ACTIVITYNAME
+	</select>
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="oracle.bpm.workspace.client.dao.CustomBPMTrackerDAO">
+	<resultMap type="trackerModel" id="trackerModel">
+		<result property="partition_id" column="PARTITION_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="composite_id" column="COMPOSITE_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="process_id" column="PROCESS_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="process_name" column="PROCESS_NAME" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="revision_tag" column="REVISION_TAG" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="model_xml" column="MODEL_XML" javaType="java.lang.String" jdbcType="CLOB"/>
+		<result property="author" column="AUTHOR" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="create_date" column="CREATE_DATE" javaType="java.util.Date" jdbcType="DATE"/>
+		<result property="update_date" column="UPDATE_DATE" javaType="java.util.Date" jdbcType="DATE"/>
+		<result property="description" column="DESCRIPTION" javaType="java.lang.String" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap type="trackerData" id="trackerData">
+		<result property="partition_id" column="PARTITION_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="composite_id" column="COMPOSITE_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="process_id" column="PROCESS_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="process_name" column="PROCESS_NAME" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="revision_tag" column="REVISION_TAG" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="instance_id" column="INSTANCE_ID" javaType="java.lang.Integer" jdbcType="NUMERIC"/>
+		<result property="activity_id" column="ACTIVITY_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="activity_name" column="ACTIVITY_NAME" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="activity_type" column="ACTIVITY_TYPE" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="label" column="LABEL" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="creation_date" column="CREATION_DATE" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result property="completion_date" column="COMPLETION_DATE" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result property="status" column="STATUS" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="is_fault" column="IS_FAULT" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="is_overdue" column="IS_OVERDUE" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="is_skip" column="IS_SKIP" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="root_instance_id" column="ROOT_INSTANCE_ID" javaType="java.lang.Integer" jdbcType="NUMERIC"/>
+		<result property="root_instance_creation_date" column="ROOT_INSTANCE_CREATION_DATE" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result property="parent_instance_id" column="PARENT_INSTANCE_ID" javaType="java.lang.Integer" jdbcType="NUMERIC"/>
+		<result property="parent_activity_id" column="PARENT_ACTIVITY_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="participants_id" column="PARTICIPANTS_ID" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="participants_name" column="PARTICIPANTS_NAME" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="exp_date" column="EXP_DATE" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+	</resultMap>
+	
+	<select id="getCustomBPMTrackerModel" parameterType="trackerModel" resultMap="trackerModel">
+			SELECT * FROM PROCESS_MODEL
+			WHERE PARTITION_ID = #{trackerModel.partition_id}
+			AND COMPOSITE_ID = #{trackerModel.composite_id}
+			AND PROCESS_ID = #{trackerModel.process_id}
+			AND REVISION_TAG = #{trackerModel.revision_tag}
+	</select>
+	
+	<update id="mergeCustomBPMTrackerModel" statementType="CALLABLE" parameterType="trackerModel">
+			{ call BPM_CUSTOM_TRACKER_PKG.MERGE_TRACKER_MODEL
+        		(
+            		#{trackerModel.partition_id, mode=IN, jdbcType=VARCHAR, javaType=string},
+            		#{trackerModel.composite_id, mode=IN, jdbcType=VARCHAR, javaType=string},
+            		#{trackerModel.process_id, mode=IN, jdbcType=VARCHAR, javaType=string},
+            		#{trackerModel.revision_tag, mode=IN, jdbcType=VARCHAR, javaType=string},
+            		#{trackerModel.process_name, mode=IN, jdbcType=VARCHAR, javaType=string},
+            		#{trackerModel.model_xml, mode=IN, jdbcType=CLOB, javaType=string},
+            		#{trackerModel.author, mode=IN, jdbcType=VARCHAR, javaType=string},
+            		#{trackerModel.description, mode=IN, jdbcType=VARCHAR, javaType=string}
+        		)
+    		}
+	</update>
+	
+	<insert id="insertCustomBPMTrackerModel" parameterType="trackerModel" >
+			INSERT INTO PROCESS_MODEL
+			(PARTITION_ID, COMPOSITE_ID, PROCESS_ID,
+			 PROCESS_NAME, REVISION_TAG, MODEL_XML, AUTHOR, CREATE_DATE, UPDATE_DATE, DESCRIPTION )
+			VALUES
+			( #{trackerModel.partition_id}, #{trackerModel.composite_id}, #{trackerModel.process_id}, #{trackerModel.process_name}, #{trackerModel.revision_tag}, #{trackerModel.model_xml}, #{trackerModel.author}, SYSDATE, SYSDATE, #{trackerModel.description} )			
+	</insert>
+	
+	<update id="updateCustomBPMTrackerModel" parameterType="trackerModel">
+			UPDATE PROCESS_MODEL
+			SET PROCESS_NAME = #{trackerModel.process_name}, MODEL_XML = #{trackerModel.model_xml}, UPDATE_DATE = SYSDATE, DESCRIPTION = #{trackerModel.description}
+			WHERE PARTITION = #{trackerModel.partition_id} AND COMPOSITE_ID = #{trackerModel.composite_id}
+			AND PROCESS_ID = #{trackerModel.process_id} AND #{trackerModel.revision_tag}
+	</update>
+	
+	<select id="getCustomBPMTrackerData" parameterType="string" resultMap="trackerData">
+			SELECT * FROM CUSTOM_BPM_TRACKER_DATA WHERE INSTANCE_ID = #{instance_id}
+	</select>
+	
+	<select id="getParentTrackerData" parameterType="string" resultMap="trackerData">
+			SELECT * FROM CUSTOM_BPM_TRACKER_DATA WHERE PARENT_INSTANCE_ID = #{instance_id} AND PARENT_ACTIVITY_ID = #{activity_id} AND ROWNUM = 1
+	</select>
+	
+	
+</mapper>
